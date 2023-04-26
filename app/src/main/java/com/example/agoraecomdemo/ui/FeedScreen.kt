@@ -28,6 +28,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.PlayCircleFilled
+import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -164,10 +165,9 @@ private fun PagerItem(
             )
         }
 
-
-//        RightControlsBlock(itemState, onLikeClick)
-//        BottomBlock(itemState)
-//        RightTopBlock(itemState)
+        RightControlsBlock(itemState, onLikeClick)
+        BottomBlock(itemState)
+        RightTopBlock(itemState)
     }
 }
 
@@ -182,8 +182,6 @@ fun FeedVideoPlayer(
     Log.e(Constants.TAG,"FeedVideoPlayer isReadyToPlay : $isReadyToPlay")
 
     var playPauseState by remember { mutableStateOf(true) }
-//    var isReadyToPlay = isPlayWhenReady && isJoinedSuccess
-
 //    var previewImageState by remember { mutableStateOf(true) }
 
 
@@ -193,42 +191,40 @@ fun FeedVideoPlayer(
         Log.e(Constants.TAG, "setTextureView to Engine")
         TextureView(setRemoteViews,uid,cname)
     }
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .clickable { playPauseState = !playPauseState }
-    ) {
-        DisposableEffect(
-            Unit
-        ) {
-            onDispose {
-                Log.e(Constants.TAG,"onDispose")
-
-            }
-
-        }
-
-//        PreviewImage(previewImageState, previewUrl)
-//        ProgressBar(progressState)
-        Text(
-            text = uid,
-            color = Color.White,
-            modifier = Modifier
-                .align(Alignment.TopStart)
-                .clip(RoundedCornerShape(8.dp))
-                .padding(8.dp)
-                .background(Color.Black)
-        )
-
-        //PlayPauseIcon(playPauseState)
-    }
+//
+//    Box(
+//        modifier = Modifier
+//            .fillMaxSize()
+//            .clickable { playPauseState = !playPauseState }
+//    ) {
+//        DisposableEffect(
+//            Unit
+//        ) {
+//            onDispose {
+//                Log.e(Constants.TAG,"onDispose")
+//
+//            }
+//
+//        }
+//
+////        PreviewImage(previewImageState, previewUrl)
+//        Text(
+//            text = uid,
+//            color = Color.White,
+//            modifier = Modifier
+//                .align(Alignment.TopStart)
+//                .clip(RoundedCornerShape(8.dp))
+//                .padding(8.dp)
+//                .background(Color.Black)
+//        )
+//
+//    }
 }
 
 @Composable
 private fun TextureView(setRemoteView :  (TextureView,String,String) -> Unit,uid:String,cname:String) {
-
-    val textureView = android.view.TextureView(LocalContext.current);
+    Log.e(Constants.TAG,"textView")
+    val textureView = TextureView(LocalContext.current);
     textureView.layoutParams = FrameLayout.LayoutParams(
         ViewGroup.LayoutParams.MATCH_PARENT,
         ViewGroup.LayoutParams.MATCH_PARENT
@@ -238,10 +234,7 @@ private fun TextureView(setRemoteView :  (TextureView,String,String) -> Unit,uid
         modifier = Modifier
             .fillMaxSize()
     )
-    setRemoteView(textureView,uid,cname)
-//    val vc = VideoCanvas(textureView,VideoCanvas.RENDER_MODE_FIT,1000)
-//    val ret = rtcEngine.setupRemoteVideoEx(vc,connection)
-//    Log.e(Constants.TAG,"setupRemoteVideoEx : $ret")
+    setRemoteView.invoke(textureView,uid,cname)
 }
 
 
@@ -322,7 +315,7 @@ private fun LikeIcon(
     onClick: () -> Unit
 ) {
     Icon(
-        imageVector = Icons.Filled.Favorite,
+        imageVector = Icons.Outlined.Favorite,
         tint = if (isLiked) Color.Red else Color.White,
         contentDescription = "",
         modifier = Modifier
@@ -342,7 +335,7 @@ private fun LikesCount(likesCount: Int) {
 }
 
 @Composable
-private fun BottomBlock(itemState: FeedItemState) {
+private fun BottomBlock(itemState: LiveItemState) {
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
@@ -352,14 +345,14 @@ private fun BottomBlock(itemState: FeedItemState) {
         ) {
 
             Text(
-                text = itemState.uploaderNick,
+                text = itemState.uid,
                 color = Color.White
             )
 
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                text = itemState.likedNicks,
+                text = itemState.cname,
                 color = Color.White
             )
         }
@@ -367,14 +360,14 @@ private fun BottomBlock(itemState: FeedItemState) {
 }
 
 @Composable
-private fun RightTopBlock(itemState: FeedItemState) {
+private fun RightTopBlock(itemState: LiveItemState) {
     Box(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
         Text(
-            text = itemState.numberOfVideos,
+            text = itemState.numberOfLive,
             color = Color.White,
             modifier = Modifier
                 .align(Alignment.TopStart)

@@ -27,7 +27,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.content.ContextCompat
 import com.example.agoraecomdemo.ui.FeedScreen
@@ -70,6 +69,8 @@ class ChannelSwitching : ComponentActivity() {
                 }
             }
         }
+
+
     }
 }
 

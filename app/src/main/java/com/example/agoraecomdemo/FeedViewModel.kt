@@ -3,12 +3,9 @@ package com.example.agoraecomdemo
 import android.content.Context
 import android.util.Log
 import android.view.TextureView
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.snapshots.SnapshotStateMap
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.agoraecomdemo.model.LiveInfo
@@ -26,10 +23,8 @@ import io.agora.rtc2.RtcEngine
 import io.agora.rtc2.RtcEngineConfig
 import io.agora.rtc2.RtcEngineEx
 import io.agora.rtc2.video.VideoCanvas
-import io.agora.rtc2.video.VideoCanvas.RENDER_MODE_FIT
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 import javax.inject.Inject
 
@@ -43,7 +38,6 @@ class FeedViewModel
 	private val mFeedScreenState = mutableStateOf<FeedScreenState>(FeedScreenState.Loading)
 	private var mChannelJoinState = mutableStateMapOf<String,Boolean>()
 	private lateinit var rtcEngineEx : RtcEngineEx
-
 
 	init {
 		viewModelScope.launch {
@@ -59,8 +53,6 @@ class FeedViewModel
 						LiveInfoResult.Loading -> FeedScreenState.Loading
 					}
 					rtcEngineEx = initRtcEngine(context,"0b11eaee339d4ef98d47945acd6e461d") as RtcEngineEx
-
-
 				}
 		}
 	}
