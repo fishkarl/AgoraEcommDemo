@@ -116,13 +116,13 @@ private fun FeedPager(
 
 ) {
     val pageCount = items.size
-    val startIndex = Int.MAX_VALUE / 2
+    val startIndex = 0
     val pagerState = rememberPagerState(initialPage = 0)
 
     VerticalPager(
         pageCount = Int.MAX_VALUE,
         state = pagerState,
-        beyondBoundsPageCount = 1
+//        beyondBoundsPageCount = 1
     ) { index ->
         val page = (index - startIndex).floorMod(pageCount)
         Log.e(Constants.TAG,"Page : $index")

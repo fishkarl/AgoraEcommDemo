@@ -117,7 +117,6 @@ class FeedViewModel
 			}
 		}
 		//unmute current page
-
 		muteAllRemoteAudioStreamEx(false,createConnection(items[page].uid,items[page].cname))
 
 

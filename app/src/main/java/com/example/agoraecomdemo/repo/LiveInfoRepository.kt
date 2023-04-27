@@ -17,7 +17,9 @@ class LiveInfoRepository
 		var result = listOf<LiveInfo>(
 			LiveInfo(uid = "1001" , cname= "DT01"),
 			LiveInfo(uid = "1002" , cname= "DT02"),
-			LiveInfo(uid = "1003" , cname= "DT03")
+			LiveInfo(uid = "1003" , cname= "DT03"),
+			LiveInfo(uid = "1004" , cname= "DT04"),
+			LiveInfo(uid = "1005" , cname= "DT05")
 			)
 
 		mChannelFlow.value = LiveInfoResult.Data(result)
