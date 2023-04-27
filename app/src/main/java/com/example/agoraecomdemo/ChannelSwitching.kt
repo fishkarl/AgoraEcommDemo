@@ -29,6 +29,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.content.ContextCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import com.example.agoraecomdemo.ui.FeedScreen
 import com.example.agoraecomdemo.ui.theme.AgoraEcomDemoTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -69,8 +72,10 @@ class ChannelSwitching : ComponentActivity() {
                 }
             }
         }
-
-
+        with(WindowCompat.getInsetsController(window, window.decorView)) {
+            systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            hide(WindowInsetsCompat.Type.systemBars())
+        }
     }
 }
 

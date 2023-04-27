@@ -115,14 +115,14 @@ private fun FeedPager(
     setRemoteView : (TextureView,String,String) -> Unit
 
 ) {
-    val pageCount = 3
+    val pageCount = items.size
     val startIndex = Int.MAX_VALUE / 2
     val pagerState = rememberPagerState(initialPage = 0)
 
     VerticalPager(
         pageCount = Int.MAX_VALUE,
         state = pagerState,
-        //beyondBoundsPageCount = 1
+        beyondBoundsPageCount = 1
     ) { index ->
         val page = (index - startIndex).floorMod(pageCount)
         Log.e(Constants.TAG,"Page : $index")
@@ -133,7 +133,7 @@ private fun FeedPager(
             onPageChanged = onPageChanged,
             page = page,
             joinState = joinStates[items[page].cname],
-            setRemoteView
+            setRemoteViews = setRemoteView
         )
     }
 }
@@ -160,11 +160,10 @@ private fun PagerItem(
             FeedVideoPlayer(
                 uid = itemState.uid,
                 cname = itemState.cname,
-                isReadyToPlay = isSelected && joinState,
-                setRemoteViews = setRemoteViews
+                setRemoteView = setRemoteViews,
+
             )
         }
-
         RightControlsBlock(itemState, onLikeClick)
         BottomBlock(itemState)
         RightTopBlock(itemState)
@@ -176,67 +175,26 @@ private fun PagerItem(
 fun FeedVideoPlayer(
     uid: String,
     cname: String,
-    isReadyToPlay: Boolean,
-    setRemoteViews :  (TextureView,String,String) -> Unit
+    setRemoteView :  (TextureView,String,String) -> Unit
 ) {
-    Log.e(Constants.TAG,"FeedVideoPlayer isReadyToPlay : $isReadyToPlay")
 
-    var playPauseState by remember { mutableStateOf(true) }
 //    var previewImageState by remember { mutableStateOf(true) }
 
+        val context = LocalContext.current
+        AndroidView(
+            factory = {
+                TextureView(context).apply {
+                    layoutParams = FrameLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT
+                    )
+                    setRemoteView.invoke(this,uid,cname)
+                }},
+            modifier = Modifier
+                .fillMaxSize()
+        )
 
-
-
-    if(isReadyToPlay){
-        Log.e(Constants.TAG, "setTextureView to Engine")
-        TextureView(setRemoteViews,uid,cname)
-    }
-//
-//    Box(
-//        modifier = Modifier
-//            .fillMaxSize()
-//            .clickable { playPauseState = !playPauseState }
-//    ) {
-//        DisposableEffect(
-//            Unit
-//        ) {
-//            onDispose {
-//                Log.e(Constants.TAG,"onDispose")
-//
-//            }
-//
-//        }
-//
-////        PreviewImage(previewImageState, previewUrl)
-//        Text(
-//            text = uid,
-//            color = Color.White,
-//            modifier = Modifier
-//                .align(Alignment.TopStart)
-//                .clip(RoundedCornerShape(8.dp))
-//                .padding(8.dp)
-//                .background(Color.Black)
-//        )
-//
-//    }
 }
-
-@Composable
-private fun TextureView(setRemoteView :  (TextureView,String,String) -> Unit,uid:String,cname:String) {
-    Log.e(Constants.TAG,"textView")
-    val textureView = TextureView(LocalContext.current);
-    textureView.layoutParams = FrameLayout.LayoutParams(
-        ViewGroup.LayoutParams.MATCH_PARENT,
-        ViewGroup.LayoutParams.MATCH_PARENT
-    )
-    AndroidView(
-        factory = {textureView!!},
-        modifier = Modifier
-            .fillMaxSize()
-    )
-    setRemoteView.invoke(textureView,uid,cname)
-}
-
 
 @Composable
 private fun EmptyPager() {
@@ -314,13 +272,17 @@ private fun LikeIcon(
     isLiked: Boolean,
     onClick: () -> Unit
 ) {
+    var isLikedd = remember{ mutableStateOf(false) }
+
     Icon(
         imageVector = Icons.Outlined.Favorite,
-        tint = if (isLiked) Color.Red else Color.White,
+        tint = if (isLikedd.value) Color.Red else Color.White,
         contentDescription = "",
         modifier = Modifier
             .size(48.dp)
-            .clickable(onClick = onClick)
+            .clickable(onClick = {
+                isLikedd.value = !isLikedd.value;
+            })
     )
 }
 
