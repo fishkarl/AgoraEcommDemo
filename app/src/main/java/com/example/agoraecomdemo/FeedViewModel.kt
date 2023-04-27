@@ -76,13 +76,6 @@ class FeedViewModel
 	fun setRemoteView(textureView : TextureView,uid:String, cname : String){
 		val ret = rtcEngineEx.setupRemoteVideoEx(VideoCanvas(textureView,VideoCanvas.RENDER_MODE_HIDDEN,1000) ,createConnection(uid,cname))
 		Log.e("FVM", "setRemoteView ret : $ret")
-//		rtcEngineEx.muteAllRemoteAudioStreamsEx(true,)
-//		rtcEngineEx.muteRemoteAudioStreamEx(1000,false,createConnection(uid,cname))
-	}
-
-	//TODO: Audio Playback control
-	fun muteChannel(){
-
 	}
 
 
@@ -92,6 +85,7 @@ class FeedViewModel
 		val items =(mFeedScreenState.value as FeedScreenState.Data).items
 		val item = items[page]
 		val connection = createConnection(item.uid,item.cname)
+
 		if(mChannelJoinState[item.cname] != true){
 			joinChannelEx(connection, createMediaOptions(), object : IRtcEngineEventHandler(){
 				override fun onJoinChannelSuccess(channel: String?, uid: Int, elapsed: Int) {
@@ -122,9 +116,24 @@ class FeedViewModel
 					})
 			}
 		}
+		//unmute current page
+
+		muteAllRemoteAudioStreamEx(false,createConnection(items[page].uid,items[page].cname))
 
 
-		//TODO : LeavePreviousChannel
+		//TODO : mutePreviousChannel and Leave Channel which is not need to be cached
+		//MutePreviousChannel , pre or next page if have
+		val prePage = if(page > 0) page - 1 else items.size - 1;
+		val preItem = items[prePage]
+		if(mChannelJoinState[preItem.cname] == true){
+			muteAllRemoteAudioStreamEx(true, createConnection(preItem.uid,preItem.cname))
+		}
+
+		val nextPage = if(page + 1 < items.size) page + 1 else 0
+		val nextItem = items[nextPage]
+		if(mChannelJoinState[nextItem.cname] == true){
+			muteAllRemoteAudioStreamEx(true, createConnection(nextItem.uid,nextItem.cname))
+		}
 	}
 
 	private fun createConnection(uid:String, cname:String): RtcConnection = RtcConnection(cname,uid.toInt())
@@ -162,6 +171,18 @@ class FeedViewModel
 	private fun joinChannelEx(connection: RtcConnection,mediaOptions: ChannelMediaOptions,eventHandler: IRtcEngineEventHandler){
 		viewModelScope.launch(Dispatchers.IO){
 			rtcEngineEx.joinChannelEx(null,connection,mediaOptions,eventHandler)
+		}
+	}
+
+	private fun muteAllRemoteAudioStreamEx(muted:Boolean, connection: RtcConnection) {
+		viewModelScope.launch(Dispatchers.IO){
+			rtcEngineEx.muteAllRemoteAudioStreamsEx(muted,connection)
+		}
+	}
+
+	private fun leaveChannelEx(connection: RtcConnection){
+		viewModelScope.launch(Dispatchers.IO){
+			rtcEngineEx.leaveChannelEx(connection)
 		}
 	}
 
