@@ -52,7 +52,7 @@ class FeedViewModel
 						LiveInfoResult.Error -> FeedScreenState.Empty
 						LiveInfoResult.Loading -> FeedScreenState.Loading
 					}
-					rtcEngineEx = initRtcEngine(context,"0b11eaee339d4ef98d47945acd6e461d") as RtcEngineEx
+					rtcEngineEx = initRtcEngine(context,"") as RtcEngineEx
 				}
 		}
 	}
