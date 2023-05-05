@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">AgoraEcomDemo</string>
     <string name="title_activity_channel_switching">ChannelSwitching</string>
+    <string name="appid"></string>
 </resources>

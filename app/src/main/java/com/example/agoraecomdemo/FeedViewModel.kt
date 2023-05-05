@@ -52,7 +52,7 @@ class FeedViewModel
 						LiveInfoResult.Error -> FeedScreenState.Empty
 						LiveInfoResult.Loading -> FeedScreenState.Loading
 					}
-					rtcEngineEx = initRtcEngine(context,"") as RtcEngineEx
+					rtcEngineEx = initRtcEngine(context, context.resources.getString(R.string.appid)) as RtcEngineEx
 				}
 		}
 	}
@@ -93,6 +93,7 @@ class FeedViewModel
 					Log.e("FVM","OnJoinChannel succ : $channel" )
 					mChannelJoinState[item.cname] = true
 				}
+
 			})
 		}
 		if(page + 1 < items.size){
@@ -179,9 +180,16 @@ class FeedViewModel
 		}
 	}
 
+	fun leaveChannelEx(uid : String, cname : String){
+		if(mChannelJoinState[cname] == true){
+			leaveChannelEx(createConnection(uid,cname))
+		}
+	}
+
 	private fun leaveChannelEx(connection: RtcConnection){
 		viewModelScope.launch(Dispatchers.IO){
 			rtcEngineEx.leaveChannelEx(connection)
+			mChannelJoinState[connection.channelId] = false;
 		}
 	}
 

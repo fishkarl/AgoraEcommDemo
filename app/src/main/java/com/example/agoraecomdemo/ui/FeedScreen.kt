@@ -26,7 +26,6 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.PlayCircleFilled
 import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material3.CircularProgressIndicator
@@ -37,7 +36,6 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -52,7 +50,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberImagePainter
 import coil.request.ImageRequest
 import com.example.agoraecomdemo.FeedViewModel
-import com.example.agoraecomdemo.state.FeedItemState
 import com.example.agoraecomdemo.state.FeedScreenState
 import com.example.agoraecomdemo.state.LiveItemState
 
@@ -79,7 +76,8 @@ fun FeedScreen() {
                 joinStates = joinStates,
                 onLikeClick = {viewModel.likeOrDislike(it)},
                 onPageChanged = {viewModel.onPageChanged(it)},
-                setRemoteView = { tv : TextureView ,uid : String, cname : String-> viewModel.setRemoteView(tv,uid,cname)}
+                setRemoteView = { tv : TextureView ,uid : String, cname : String-> viewModel.setRemoteView(tv,uid,cname)},
+                leaveChannel = {uid : String, cname : String -> viewModel.leaveChannelEx(uid,cname)}
             )
             FeedScreenState.Empty -> EmptyPager()
             FeedScreenState.Loading -> Loading()
@@ -100,9 +98,21 @@ private fun previewFeedPager(){
         LiveItemState("1002","DKT02","2"),
         LiveItemState("1003","DKT03","3"),
         )
+    val testStates = mapOf<String,Boolean>(
+        "DKT01" to true,
+        "DKT02" to true,
+        "DKT03" to true,
+    )
 
-    //FeedPager(items = items,rtcEngine){}
+    FeedPager(
+        items = items,
+        joinStates = testStates,
+        onLikeClick = {},
+        onPageChanged = {},
+        setRemoteView = { textureView: TextureView, s: String, s1: String -> },
+        leaveChannel = { s: String, s1: String -> })
 }
+
 
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -112,8 +122,8 @@ private fun FeedPager(
     joinStates: Map<String,Boolean>,
     onLikeClick: (String) -> Unit,
     onPageChanged: (Int) -> Unit,
-    setRemoteView : (TextureView,String,String) -> Unit
-
+    setRemoteView : (TextureView,String,String) -> Unit,
+    leaveChannel : (uid : String, cname : String) -> Unit
 ) {
     val pageCount = items.size
     val startIndex = 0
@@ -133,7 +143,8 @@ private fun FeedPager(
             onPageChanged = onPageChanged,
             page = page,
             joinState = joinStates[items[page].cname],
-            setRemoteViews = setRemoteView
+            setRemoteViews = setRemoteView,
+            leaveChannel = leaveChannel
         )
     }
 }
@@ -146,7 +157,8 @@ private fun PagerItem(
     onPageChanged: (Int) -> Unit,
     page : Int,
     joinState : Boolean?,
-    setRemoteViews : (TextureView,String,String) -> Unit
+    setRemoteViews : (TextureView,String,String) -> Unit,
+    leaveChannel : (uid : String, cname : String) -> Unit
 ) {
     if(isSelected){
         onPageChanged.invoke(page)
@@ -156,14 +168,16 @@ private fun PagerItem(
             .fillMaxSize()
             .clip(shape = RoundedCornerShape(16.dp)),
     ) {
+
         if(joinState == true){
             FeedVideoPlayer(
                 uid = itemState.uid,
                 cname = itemState.cname,
                 setRemoteView = setRemoteViews,
-
+                leaveChannel = leaveChannel
             )
         }
+
         RightControlsBlock(itemState, onLikeClick)
         BottomBlock(itemState)
         RightTopBlock(itemState)
@@ -175,24 +189,30 @@ private fun PagerItem(
 fun FeedVideoPlayer(
     uid: String,
     cname: String,
-    setRemoteView :  (TextureView,String,String) -> Unit
+    setRemoteView :  (TextureView,String,String) -> Unit,
+    leaveChannel : (uid : String, cname : String) -> Unit
 ) {
 
-//    var previewImageState by remember { mutableStateOf(true) }
+    val context = LocalContext.current
+    AndroidView(
+        factory = {
+            TextureView(context).apply {
+                layoutParams = FrameLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT
+                )
+                setRemoteView.invoke(this,uid,cname)
+            }},
+        modifier = Modifier
+            .fillMaxSize()
+    )
 
-        val context = LocalContext.current
-        AndroidView(
-            factory = {
-                TextureView(context).apply {
-                    layoutParams = FrameLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.MATCH_PARENT
-                    )
-                    setRemoteView.invoke(this,uid,cname)
-                }},
-            modifier = Modifier
-                .fillMaxSize()
-        )
+    DisposableEffect(key1 = Unit){
+        onDispose {
+            Log.e(Constants.TAG, "On Dispose called. UID : $uid CNAME : $cname")
+            leaveChannel.invoke(uid,cname)
+        }
+    }
 
 }
 
