@@ -81,7 +81,6 @@ class FeedViewModel
 
 	fun onPageChanged(page : Int){
 		Log.e("FVM", "Current selected page is : $page")
-		//TODO:JoinChannel and JoinNextChannel
 		val items =(mFeedScreenState.value as FeedScreenState.Data).items
 		val item = items[page]
 		val connection = createConnection(item.uid,item.cname)
